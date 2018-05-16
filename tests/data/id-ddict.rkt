@@ -312,37 +312,6 @@
 (check-exn #rx"free-id-ddict-empty\\?: contract violation"
            (λ () (free-id-ddict-empty? 42)))
 
-;; ;; - - - - - - - - - - - - - - - - - - - - - - - -
-;; ;; make-* tests (e.g. free-id-ddict, free-id-ddicteqv, etc)
-;; ;; - - - - - - - - - - - - - - - - - - - - - - - -
-;; (define-syntax (make/alist-test stx)
-;;   (syntax-case stx ()
-;;     [(_ make comparison-pred? pred?)
-;;      (syntax/loc stx
-;;        (let ([_1 (check-exn #rx"contract violation" (λ () (make 42)))]
-;;              [_2 (check-exn #rx"contract violation" (λ () (make '((1 . 2) (3 . 4) . (5 . 6)))))]
-;;              [mt (make)]
-;;              [dd (make '((1 . "1") (2 . "2") (3 . "3") (3 . "3")))])
-;;          (check-true (pred? mt))
-;;          (check-true (comparison-pred? mt))
-;;          (check-true (pred? dd))
-;;          (check-true (comparison-pred? dd))
-;;          (check-true (free-id-ddict-empty? mt))
-;;          (check-equal? (free-id-ddict-count dd) 3)
-;;          (check-equal? (free-id-ddict-ref dd 1) "1")
-;;          (check-equal? (free-id-ddict-ref dd 2) "2")
-;;          (check-equal? (free-id-ddict-ref dd 3) "3")))]))
-
-;; (make/alist-test make-free-id-ddict free-id-ddict-equal? immutable-free-id-ddict?)
-;; (make/alist-test make-free-id-ddicteqv free-id-ddict-eqv? immutable-free-id-ddict?)
-;; (make/alist-test make-free-id-ddicteq free-id-ddict-eq? immutable-free-id-ddict?)
-;; (make/alist-test make-mutable-free-id-ddict free-id-ddict-equal? mutable-free-id-ddict?)
-;; (make/alist-test make-mutable-free-id-ddicteqv free-id-ddict-eqv? mutable-free-id-ddict?)
-;; (make/alist-test make-mutable-free-id-ddicteq free-id-ddict-eq? mutable-free-id-ddict?)
-
-
-
-
 ;; - - - - - - - - - - - -
 ;; free-id-ddict-set*
 ;; - - - - - - - - - - - -
@@ -495,33 +464,6 @@
   (check-true (mutable-free-id-ddict? dd2))
   (check-true (free-id-ddict-empty? dd2))
   (check-false (free-id-ddict-empty? dd1)))
-
-;; - - - - - - - - - - - - - - - -
-;; free-id-ddict-keys-subset?
-;; - - - - - - - - - - - - - - - -
-;; (define (immutable-free-id-ddict-tests dd other-dd1 other-dd2)
-;;   (check-true (free-id-ddict-keys-subset? dd dd))
-;;   (check-true (free-id-ddict-keys-subset? (free-id-ddict-remove dd 0) dd))
-;;   (check-false (free-id-ddict-keys-subset? dd (free-id-ddict-remove dd 0))))
-
-;; (immutable-free-id-ddict-tests dd5 dd5eqv dd5eq)
-;; (immutable-free-id-ddict-tests dd5eqv dd5eq dd5)
-;; (immutable-free-id-ddict-tests dd5eq dd5 dd5eqv)
-
-;; (define (mutable-free-id-ddict-tests mkdd mkother-dd1 mkother-dd2)
-;;   (define dd1 (mkdd))
-;;   (define dd2 (mkdd))
-;;   (define other-dd1 (mkother-dd1))
-;;   (define other-dd2 (mkother-dd2))
-;;   (check-true (free-id-ddict-keys-subset? dd1 dd2))
-;;   (free-id-ddict-remove! dd1 0)
-;;   (check-true (free-id-ddict-keys-subset? dd1 dd2))
-;;   (check-false (free-id-ddict-keys-subset? dd2 dd1)))
-
-;; (mutable-free-id-ddict-tests mdd5 mdd5eqv mdd5eq)
-;; (mutable-free-id-ddict-tests mdd5eqv mdd5eq mdd5)
-;; (mutable-free-id-ddict-tests mdd5eq mdd5 mdd5eqv)
-
 
 ;; - - - - - - - - - - - - - - - -
 ;; free-id-ddict-compact? / free-id-ddict-compact!
@@ -702,45 +644,6 @@
 (for-tests for/free-id-ddict dd5)
 (for-tests for/mutable-free-id-ddict (mdd5))
 
-#;
-(define-syntax-rule (for*-tests for* expected)
-  (begin (check-equal? (for ([n (in-range (length id-list1))]
-                             [i (reverse id-list1)])
-                         (values i (number->string n)))
-                       expected)
-         (check-equal? (for ([n (in-range (length id-list1))]
-                             [i (reverse id-list1)])
-                         #:break (> n 4)
-                         (values i (number->string n)))
-                       expected)
-         (check-equal? (for ([n (in-range (* 2 (length id-list1)))]
-                             [v (reverse (append id-list1 id-list1))])
-                         (values v (number->string (modulo n 5)))) expected))
-  (begin (check-equal? (for* ([n (in-range 5)]
-                              [n (in-value n)])
-                         (values n (number->string n)))
-                       expected)
-         (check-equal? (for* ([n (in-range 5)]
-                              [n (in-value n)])
-                         #:break (> n 4)
-                         (values n (number->string n)))
-                       expected)
-         (check-equal? (for* ([n (in-range 10)]
-                              [n (in-value n)])
-                         (values (modulo n 5)
-                                 (number->string (modulo n 5))))
-                       expected)))
-
-#;(for*-tests for*/free-id-ddict dd5)
-#;(for*-tests for*/mutable-free-id-ddict (mdd5))
-
-;; printing
-#;
-(check-equal? (format "~a" dd5)
-              "(free-id-ddict ((4 . 4) (3 . 3) (2 . 2) (1 . 1) (0 . 0)))")
-#;
-(check-equal? (format "~a" (mdd5))
-              "(mutable-free-id-ddict ((4 . 4) (3 . 3) (2 . 2) (1 . 1) (0 . 0)))")
 
 ;; check hash code
 (check-equal? (equal-hash-code (free-id-ddict i1 i1 i2 i2 i3 i3))
