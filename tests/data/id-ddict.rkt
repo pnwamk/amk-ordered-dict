@@ -625,21 +625,22 @@
                                  v)
                                (free-id-ddict->list dd5))))
 
-
-
 (define-syntax-rule (for-tests for expected)
-  (begin (check-equal? (for ([n (in-range (length id-list1))]
-                             [i (reverse id-list1)])
-                         (values i (number->string n)))
-                       expected)
-         (check-equal? (for ([n (in-range (length id-list1))]
-                             [i (reverse id-list1)])
-                         #:break (> n 4)
-                         (values i (number->string n)))
-                       expected)
-         (check-equal? (for ([n (in-range (* 2 (length id-list1)))]
-                             [v (reverse (append id-list1 id-list1))])
-                         (values v (number->string (modulo n 5)))) expected)))
+  (begin
+    (check-exn (regexp (format "~a: contract violation" 'for))
+               (lambda () (for ([k '(1 2 3)]) (values k '()))))
+    (check-equal? (for ([n (in-range (length id-list1))]
+                        [i (reverse id-list1)])
+                    (values i (number->string n)))
+                  expected)
+    (check-equal? (for ([n (in-range (length id-list1))]
+                        [i (reverse id-list1)])
+                    #:break (> n 4)
+                    (values i (number->string n)))
+                  expected)
+    (check-equal? (for ([n (in-range (* 2 (length id-list1)))]
+                        [v (reverse (append id-list1 id-list1))])
+                    (values v (number->string (modulo n 5)))) expected)))
 
 (for-tests for/free-id-ddict dd5)
 (for-tests for/mutable-free-id-ddict (mdd5))

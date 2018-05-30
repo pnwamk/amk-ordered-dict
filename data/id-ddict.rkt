@@ -7,7 +7,6 @@
  in-free-id-ddict
  in-free-id-ddict-keys
  in-free-id-ddict-values
- ;; TODO make sure that the value expects keys
  for/free-id-ddict
  for*/free-id-ddict
  for/mutable-free-id-ddict

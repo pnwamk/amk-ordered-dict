@@ -145,7 +145,6 @@
          [(null? args) (mfree-id-ddict elems 0 seq)]
          [else (error (quote name) "impossible! you found a bug!")]))]))
 
-;; TODO There should be a way to specify phase level
 (define mutable-free-id-ddict*
   (mutable-free-id-ddict-constructor mutable-free-id-ddict
                                      (make-immutable-free-id-table)))
@@ -174,7 +173,6 @@
                                     initial-alist)]))))
 
 
-;; TODO 
 (define make-free-id-ddict
   (make-free-id-ddict/template make-free-id-ddict
                                (make-immutable-free-id-table)))
@@ -552,7 +550,6 @@
 ;;
 ;; free-id-ddict-map
 ;;
-;; TODO if we had dd-match we could factor out argument checking
 (define/dd-match (free-id-ddict-map dd f)
   [(ifree-id-ddict elems _ seq)
    (unless (and (procedure? f)
@@ -740,8 +737,8 @@
 ;;
 (define-sequence-syntax in-free-id-ddict-keys
   (λ () #'(in-free-id-ddict-keys-proc 'in-free-id-ddict-keys
-                              free-id-ddict?
-                              "free-id-ddict?"))
+                                      free-id-ddict?
+                                      "free-id-ddict?"))
   (λ (stx)
     (syntax-case stx ()
       [[(key) (_ dd-exp)]
@@ -863,6 +860,8 @@
                    clauses
                    body (... ...)
                    (let-values ([(key val) tail-expr])
+                     (unless (identifier? key)
+                       (raise-result-error 'for-name "identifier?" 1 key val))
                      (update-elems+seq elems seq key val)))])
              (mk elems 0 seq))))])))
 
